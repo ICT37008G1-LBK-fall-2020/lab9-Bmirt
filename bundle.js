@@ -1,19 +1,117 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
 
-var axios = require('axios'); //მაგალითები
+var axios = require("axios");
+
+window.getPosts = function (HTMLElement) {
+  var tableContainer = document.querySelector("#first-table");
+  fetch("https://jsonplaceholder.typicode.com/posts?userId=".concat(HTMLElement.value)).then(function (response) {
+    return response.json();
+  }).then(function (json) {
+    var postKeys = Object.keys(json[0]);
+    var table = document.createElement("table"); //creating table head
+
+    var tr = document.createElement("tr");
+
+    for (var i = 0; i < postKeys.length; i++) {
+      var _th = document.createElement("th");
+
+      var _text = document.createTextNode("".concat(postKeys[i]));
+
+      _th.appendChild(_text);
+
+      tr.appendChild(_th);
+      table.appendChild(tr);
+    } // adding button head
 
 
-fetch('https://jsonplaceholder.typicode.com/todos/1').then(function (response) {
-  return response.json();
-}).then(function (json) {
-  return console.log(json);
-});
-axios.get('https://jsonplaceholder.typicode.com/todos/1').then(function (response) {
-  console.log(response.data);
-}).catch(function (error) {
-  console.log(error);
-});
+    var th = document.createElement("th");
+    var text = document.createTextNode("Comments");
+    th.appendChild(text);
+    tr.appendChild(th);
+    table.appendChild(tr); //creating table body
+
+    for (var j = 0; j < json.length; j++) {
+      var _tr = document.createElement("tr");
+
+      _tr.setAttribute("class", "tr tr-".concat(json[j].id));
+
+      for (var k = 0; k < postKeys.length; k++) {
+        var td = document.createElement("td");
+
+        var _text3 = document.createTextNode("".concat(json[j][postKeys[k]]));
+
+        td.appendChild(_text3);
+
+        _tr.appendChild(td);
+      }
+
+      var button = document.createElement("button");
+      button.setAttribute("onclick", "getComments(".concat(json[j].id, ")"));
+
+      var _text2 = document.createTextNode("Show Comments");
+
+      button.appendChild(_text2);
+
+      _tr.appendChild(button);
+
+      table.appendChild(_tr);
+    }
+
+    tableContainer.innerHTML = "";
+    tableContainer.appendChild(table);
+  });
+};
+
+window.getComments = function (event) {
+  console.warn(event);
+  if (typeof event !== "number") return alert("error");
+  var tableContainer = document.querySelector("#second-table");
+  axios.get("https://jsonplaceholder.typicode.com/comments?postId=".concat(event)).then(function (response) {
+    var commentKeys = Object.keys(response.data[0]);
+    var table = document.createElement("table"); //creating table head
+
+    var tr = document.createElement("tr");
+
+    for (var i = 0; i < commentKeys.length; i++) {
+      var th = document.createElement("th");
+      var text = document.createTextNode("".concat(commentKeys[i]));
+      th.appendChild(text);
+      tr.appendChild(th);
+      table.appendChild(tr);
+    } //creating table body
+
+
+    for (var j = 0; j < response.data.length; j++) {
+      var _tr2 = document.createElement("tr");
+
+      for (var k = 0; k < commentKeys.length; k++) {
+        var td = document.createElement("td");
+
+        var _text4 = document.createTextNode("".concat(response.data[j][commentKeys[k]]));
+
+        td.appendChild(_text4);
+
+        _tr2.appendChild(td);
+      }
+
+      table.appendChild(_tr2);
+    }
+
+    tableContainer.innerHTML = "";
+    tableContainer.appendChild(table); //setting background
+
+    var allRows = document.querySelectorAll("tr");
+    allRows.forEach(function (HTMLElement) {
+      return HTMLElement.classList.remove("active");
+    });
+    console.log("boris", event);
+    var activeRow = document.querySelector(".tr-".concat(event));
+    activeRow.classList.add("active");
+  }).catch(function (error) {
+    console.error(error);
+  });
+};
 
 },{"axios":2}],2:[function(require,module,exports){
 module.exports = require('./lib/axios');
